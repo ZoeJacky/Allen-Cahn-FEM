@@ -53,10 +53,10 @@ RM = /usr/local/Cellar/cmake/3.27.7/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /Users/lishuangshuang/Desktop/Thesis/dealii-9.5.2/examples/step-26
+CMAKE_SOURCE_DIR = /Users/lishuangshuang/Downloads/FEM/examples/step-26
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /Users/lishuangshuang/Desktop/Thesis/dealii-9.5.2/examples/step-26
+CMAKE_BINARY_DIR = /Users/lishuangshuang/Downloads/FEM/examples/step-26
 
 # Utility rule file for distclean.
 
@@ -67,9 +67,9 @@ include CMakeFiles/distclean.dir/compiler_depend.make
 include CMakeFiles/distclean.dir/progress.make
 
 CMakeFiles/distclean:
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=/Users/lishuangshuang/Desktop/Thesis/dealii-9.5.2/examples/step-26/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "distclean invoked"
-	/usr/local/Cellar/cmake/3.27.7/bin/cmake --build /Users/lishuangshuang/Desktop/Thesis/dealii-9.5.2/examples/step-26 --target clean
-	/usr/local/Cellar/cmake/3.27.7/bin/cmake --build /Users/lishuangshuang/Desktop/Thesis/dealii-9.5.2/examples/step-26 --target runclean
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=/Users/lishuangshuang/Downloads/FEM/examples/step-26/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "distclean invoked"
+	/usr/local/Cellar/cmake/3.27.7/bin/cmake --build /Users/lishuangshuang/Downloads/FEM/examples/step-26 --target clean
+	/usr/local/Cellar/cmake/3.27.7/bin/cmake --build /Users/lishuangshuang/Downloads/FEM/examples/step-26 --target runclean
 	/usr/local/Cellar/cmake/3.27.7/bin/cmake -E remove_directory CMakeFiles
 	/usr/local/Cellar/cmake/3.27.7/bin/cmake -E remove CMakeCache.txt cmake_install.cmake Makefile build.ninja rules.ninja .ninja_deps .ninja_log
 
@@ -86,6 +86,6 @@ CMakeFiles/distclean.dir/clean:
 .PHONY : CMakeFiles/distclean.dir/clean
 
 CMakeFiles/distclean.dir/depend:
-	cd /Users/lishuangshuang/Desktop/Thesis/dealii-9.5.2/examples/step-26 && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /Users/lishuangshuang/Desktop/Thesis/dealii-9.5.2/examples/step-26 /Users/lishuangshuang/Desktop/Thesis/dealii-9.5.2/examples/step-26 /Users/lishuangshuang/Desktop/Thesis/dealii-9.5.2/examples/step-26 /Users/lishuangshuang/Desktop/Thesis/dealii-9.5.2/examples/step-26 /Users/lishuangshuang/Desktop/Thesis/dealii-9.5.2/examples/step-26/CMakeFiles/distclean.dir/DependInfo.cmake "--color=$(COLOR)"
+	cd /Users/lishuangshuang/Downloads/FEM/examples/step-26 && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /Users/lishuangshuang/Downloads/FEM/examples/step-26 /Users/lishuangshuang/Downloads/FEM/examples/step-26 /Users/lishuangshuang/Downloads/FEM/examples/step-26 /Users/lishuangshuang/Downloads/FEM/examples/step-26 /Users/lishuangshuang/Downloads/FEM/examples/step-26/CMakeFiles/distclean.dir/DependInfo.cmake "--color=$(COLOR)"
 .PHONY : CMakeFiles/distclean.dir/depend
 

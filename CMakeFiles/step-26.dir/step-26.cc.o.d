@@ -1,5 +1,5 @@
 CMakeFiles/step-26.dir/step-26.cc.o: \
-  /Users/lishuangshuang/Desktop/Thesis/dealii-9.5.2/examples/step-26/step-26.cc \
+  /Users/lishuangshuang/Downloads/FEM/examples/step-26/step-26.cc \
   /Users/lishuangshuang/Downloads/FEM/include/deal.II/base/utilities.h \
   /Users/lishuangshuang/Downloads/FEM/include/deal.II/base/config.h \
   /Users/lishuangshuang/Downloads/FEM/include/deal.II/base/numbers.h \

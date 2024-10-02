@@ -53,10 +53,10 @@ RM = /usr/local/Cellar/cmake/3.27.7/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /Users/lishuangshuang/Desktop/Thesis/dealii-9.5.2/examples/step-26
+CMAKE_SOURCE_DIR = /Users/lishuangshuang/Downloads/FEM/examples/step-26
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /Users/lishuangshuang/Desktop/Thesis/dealii-9.5.2/examples/step-26
+CMAKE_BINARY_DIR = /Users/lishuangshuang/Downloads/FEM/examples/step-26
 
 # Utility rule file for info.
 
@@ -67,7 +67,7 @@ include CMakeFiles/info.dir/compiler_depend.make
 include CMakeFiles/info.dir/progress.make
 
 CMakeFiles/info:
-	/usr/local/Cellar/cmake/3.27.7/bin/cmake -P /Users/lishuangshuang/Desktop/Thesis/dealii-9.5.2/examples/step-26/CMakeFiles/print_usage.cmake
+	/usr/local/Cellar/cmake/3.27.7/bin/cmake -P /Users/lishuangshuang/Downloads/FEM/examples/step-26/CMakeFiles/print_usage.cmake
 
 info: CMakeFiles/info
 info: CMakeFiles/info.dir/build.make
@@ -82,6 +82,6 @@ CMakeFiles/info.dir/clean:
 .PHONY : CMakeFiles/info.dir/clean
 
 CMakeFiles/info.dir/depend:
-	cd /Users/lishuangshuang/Desktop/Thesis/dealii-9.5.2/examples/step-26 && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /Users/lishuangshuang/Desktop/Thesis/dealii-9.5.2/examples/step-26 /Users/lishuangshuang/Desktop/Thesis/dealii-9.5.2/examples/step-26 /Users/lishuangshuang/Desktop/Thesis/dealii-9.5.2/examples/step-26 /Users/lishuangshuang/Desktop/Thesis/dealii-9.5.2/examples/step-26 /Users/lishuangshuang/Desktop/Thesis/dealii-9.5.2/examples/step-26/CMakeFiles/info.dir/DependInfo.cmake "--color=$(COLOR)"
+	cd /Users/lishuangshuang/Downloads/FEM/examples/step-26 && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /Users/lishuangshuang/Downloads/FEM/examples/step-26 /Users/lishuangshuang/Downloads/FEM/examples/step-26 /Users/lishuangshuang/Downloads/FEM/examples/step-26 /Users/lishuangshuang/Downloads/FEM/examples/step-26 /Users/lishuangshuang/Downloads/FEM/examples/step-26/CMakeFiles/info.dir/DependInfo.cmake "--color=$(COLOR)"
 .PHONY : CMakeFiles/info.dir/depend
 

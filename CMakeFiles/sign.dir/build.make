@@ -53,10 +53,10 @@ RM = /usr/local/Cellar/cmake/3.27.7/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /Users/lishuangshuang/Desktop/Thesis/dealii-9.5.2/examples/step-26
+CMAKE_SOURCE_DIR = /Users/lishuangshuang/Downloads/FEM/examples/step-26
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /Users/lishuangshuang/Desktop/Thesis/dealii-9.5.2/examples/step-26
+CMAKE_BINARY_DIR = /Users/lishuangshuang/Downloads/FEM/examples/step-26
 
 # Utility rule file for sign.
 
@@ -67,7 +67,7 @@ include CMakeFiles/sign.dir/compiler_depend.make
 include CMakeFiles/sign.dir/progress.make
 
 CMakeFiles/sign:
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=/Users/lishuangshuang/Desktop/Thesis/dealii-9.5.2/examples/step-26/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Digitally signing step-26"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=/Users/lishuangshuang/Downloads/FEM/examples/step-26/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Digitally signing step-26"
 	/usr/local/Cellar/cmake/3.27.7/bin/cmake -E echo '' && /usr/local/Cellar/cmake/3.27.7/bin/cmake -E echo '***************************************************************************' && /usr/local/Cellar/cmake/3.27.7/bin/cmake -E echo '** Error: No Mac OSX developer certificate specified **' && /usr/local/Cellar/cmake/3.27.7/bin/cmake -E echo '** Please reconfigure with -DOSX_CERTIFICATE_NAME="<...>" **' && /usr/local/Cellar/cmake/3.27.7/bin/cmake -E echo '***************************************************************************' && /usr/local/Cellar/cmake/3.27.7/bin/cmake -E echo ''
 
 sign: CMakeFiles/sign
@@ -83,6 +83,6 @@ CMakeFiles/sign.dir/clean:
 .PHONY : CMakeFiles/sign.dir/clean
 
 CMakeFiles/sign.dir/depend:
-	cd /Users/lishuangshuang/Desktop/Thesis/dealii-9.5.2/examples/step-26 && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /Users/lishuangshuang/Desktop/Thesis/dealii-9.5.2/examples/step-26 /Users/lishuangshuang/Desktop/Thesis/dealii-9.5.2/examples/step-26 /Users/lishuangshuang/Desktop/Thesis/dealii-9.5.2/examples/step-26 /Users/lishuangshuang/Desktop/Thesis/dealii-9.5.2/examples/step-26 /Users/lishuangshuang/Desktop/Thesis/dealii-9.5.2/examples/step-26/CMakeFiles/sign.dir/DependInfo.cmake "--color=$(COLOR)"
+	cd /Users/lishuangshuang/Downloads/FEM/examples/step-26 && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /Users/lishuangshuang/Downloads/FEM/examples/step-26 /Users/lishuangshuang/Downloads/FEM/examples/step-26 /Users/lishuangshuang/Downloads/FEM/examples/step-26 /Users/lishuangshuang/Downloads/FEM/examples/step-26 /Users/lishuangshuang/Downloads/FEM/examples/step-26/CMakeFiles/sign.dir/DependInfo.cmake "--color=$(COLOR)"
 .PHONY : CMakeFiles/sign.dir/depend
 

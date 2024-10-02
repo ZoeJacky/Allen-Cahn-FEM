@@ -53,10 +53,10 @@ RM = /usr/local/Cellar/cmake/3.27.7/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /Users/lishuangshuang/Desktop/Thesis/dealii-9.5.2/examples/step-26
+CMAKE_SOURCE_DIR = /Users/lishuangshuang/Downloads/FEM/examples/step-26
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /Users/lishuangshuang/Desktop/Thesis/dealii-9.5.2/examples/step-26
+CMAKE_BINARY_DIR = /Users/lishuangshuang/Downloads/FEM/examples/step-26
 
 # Utility rule file for run.
 
@@ -67,7 +67,7 @@ include CMakeFiles/run.dir/compiler_depend.make
 include CMakeFiles/run.dir/progress.make
 
 CMakeFiles/run: step-26
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=/Users/lishuangshuang/Desktop/Thesis/dealii-9.5.2/examples/step-26/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Run step-26 with Debug configuration"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=/Users/lishuangshuang/Downloads/FEM/examples/step-26/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Run step-26 with Debug configuration"
 	./step-26
 
 run: CMakeFiles/run
@@ -83,6 +83,6 @@ CMakeFiles/run.dir/clean:
 .PHONY : CMakeFiles/run.dir/clean
 
 CMakeFiles/run.dir/depend:
-	cd /Users/lishuangshuang/Desktop/Thesis/dealii-9.5.2/examples/step-26 && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /Users/lishuangshuang/Desktop/Thesis/dealii-9.5.2/examples/step-26 /Users/lishuangshuang/Desktop/Thesis/dealii-9.5.2/examples/step-26 /Users/lishuangshuang/Desktop/Thesis/dealii-9.5.2/examples/step-26 /Users/lishuangshuang/Desktop/Thesis/dealii-9.5.2/examples/step-26 /Users/lishuangshuang/Desktop/Thesis/dealii-9.5.2/examples/step-26/CMakeFiles/run.dir/DependInfo.cmake "--color=$(COLOR)"
+	cd /Users/lishuangshuang/Downloads/FEM/examples/step-26 && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /Users/lishuangshuang/Downloads/FEM/examples/step-26 /Users/lishuangshuang/Downloads/FEM/examples/step-26 /Users/lishuangshuang/Downloads/FEM/examples/step-26 /Users/lishuangshuang/Downloads/FEM/examples/step-26 /Users/lishuangshuang/Downloads/FEM/examples/step-26/CMakeFiles/run.dir/DependInfo.cmake "--color=$(COLOR)"
 .PHONY : CMakeFiles/run.dir/depend
 

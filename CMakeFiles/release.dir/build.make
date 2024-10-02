@@ -53,10 +53,10 @@ RM = /usr/local/Cellar/cmake/3.27.7/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /Users/lishuangshuang/Desktop/Thesis/dealii-9.5.2/examples/step-26
+CMAKE_SOURCE_DIR = /Users/lishuangshuang/Downloads/FEM/examples/step-26
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /Users/lishuangshuang/Desktop/Thesis/dealii-9.5.2/examples/step-26
+CMAKE_BINARY_DIR = /Users/lishuangshuang/Downloads/FEM/examples/step-26
 
 # Utility rule file for release.
 
@@ -67,8 +67,8 @@ include CMakeFiles/release.dir/compiler_depend.make
 include CMakeFiles/release.dir/progress.make
 
 CMakeFiles/release:
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=/Users/lishuangshuang/Desktop/Thesis/dealii-9.5.2/examples/step-26/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Switching CMAKE_BUILD_TYPE to Release"
-	/usr/local/Cellar/cmake/3.27.7/bin/cmake -DCMAKE_BUILD_TYPE=Release /Users/lishuangshuang/Desktop/Thesis/dealii-9.5.2/examples/step-26
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=/Users/lishuangshuang/Downloads/FEM/examples/step-26/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Switching CMAKE_BUILD_TYPE to Release"
+	/usr/local/Cellar/cmake/3.27.7/bin/cmake -DCMAKE_BUILD_TYPE=Release /Users/lishuangshuang/Downloads/FEM/examples/step-26
 	/usr/local/Cellar/cmake/3.27.7/bin/cmake -E echo "***"
 	/usr/local/Cellar/cmake/3.27.7/bin/cmake -E echo "*** Switched to Release mode. Now recompile with:  \$$ make"
 	/usr/local/Cellar/cmake/3.27.7/bin/cmake -E echo "***"
@@ -86,6 +86,6 @@ CMakeFiles/release.dir/clean:
 .PHONY : CMakeFiles/release.dir/clean
 
 CMakeFiles/release.dir/depend:
-	cd /Users/lishuangshuang/Desktop/Thesis/dealii-9.5.2/examples/step-26 && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /Users/lishuangshuang/Desktop/Thesis/dealii-9.5.2/examples/step-26 /Users/lishuangshuang/Desktop/Thesis/dealii-9.5.2/examples/step-26 /Users/lishuangshuang/Desktop/Thesis/dealii-9.5.2/examples/step-26 /Users/lishuangshuang/Desktop/Thesis/dealii-9.5.2/examples/step-26 /Users/lishuangshuang/Desktop/Thesis/dealii-9.5.2/examples/step-26/CMakeFiles/release.dir/DependInfo.cmake "--color=$(COLOR)"
+	cd /Users/lishuangshuang/Downloads/FEM/examples/step-26 && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /Users/lishuangshuang/Downloads/FEM/examples/step-26 /Users/lishuangshuang/Downloads/FEM/examples/step-26 /Users/lishuangshuang/Downloads/FEM/examples/step-26 /Users/lishuangshuang/Downloads/FEM/examples/step-26 /Users/lishuangshuang/Downloads/FEM/examples/step-26/CMakeFiles/release.dir/DependInfo.cmake "--color=$(COLOR)"
 .PHONY : CMakeFiles/release.dir/depend
 
