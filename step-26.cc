@@ -82,10 +82,11 @@ namespace Step26
 
   private:
     void setup_system();
+    void assemble_system();
     void solve_time_step();
     void output_results() const;
-    void refine_mesh(const unsigned int min_grid_level,
-                     const unsigned int max_grid_level);
+    // void refine_mesh(const unsigned int min_grid_level,
+    //                  const unsigned int max_grid_level);
 
     Triangulation<dim> triangulation;
     FE_Q<dim>          fe;
@@ -144,7 +145,7 @@ namespace Step26
     (void)component;
     AssertIndexRange(component, 1);
     Assert(dim == 2, ExcNotImplemented());
-    return 1;
+    return 0;
     // const double time = this->get_time();
     // const double point_within_period =
     //   (time / period - std::floor(time / period));
@@ -202,7 +203,7 @@ namespace Step26
   HeatEquation<dim>::HeatEquation()
     : fe(1)
     , dof_handler(triangulation)
-    , time_step(1. / 500)
+    , time_step(1. / 100)
     , theta(0.5)
   {}
 
@@ -259,6 +260,76 @@ namespace Step26
     old_solution.reinit(dof_handler.n_dofs());
     system_rhs.reinit(dof_handler.n_dofs());
   }
+
+
+template <int dim>
+void HeatEquation<dim>::assemble_system()
+{
+  system_matrix = 0;
+  system_rhs = 0;
+  
+  QGauss<dim> quadrature_formula(fe.degree + 1);
+
+  FEValues<dim> fe_values(fe,
+                          quadrature_formula,
+                          update_values | update_gradients | update_quadrature_points | update_JxW_values);
+
+  const unsigned int dofs_per_cell = fe.n_dofs_per_cell();
+  const unsigned int n_q_points    = quadrature_formula.size();
+  std::vector<double> old_solution_values(n_q_points);
+
+  // Loop over cells in the mesh
+  for (const auto &cell : dof_handler.active_cell_iterators())
+  {
+      fe_values.reinit(cell);
+
+      // Temporary objects for storing local contributions
+      FullMatrix<double> cell_matrix(dofs_per_cell, dofs_per_cell);
+      Vector<double> cell_rhs(dofs_per_cell);
+      std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
+
+      for(const unsigned int q_index : fe_values.quadrature_point_indices()){
+        const double u_old = old_solution_values[q_index]; // u^{n-1}
+        for(const unsigned int i : fe_values.dof_indices()){
+          for(const unsigned int j : fe_values.dof_indices()){
+            // Time derivative term: (1/dt) * phi_i * phi_j
+            cell_matrix(i, j) += (1.0 / time_step) * fe_values.shape_value(i, q_index) *
+                                  fe_values.shape_value(j, q_index) *
+                                  fe_values.JxW(q_index);
+
+            // Laplacian term: grad(phi_i) * grad(phi_j)
+            cell_matrix(i, j) += fe_values.shape_grad(i, q_index) *
+                                  fe_values.shape_grad(j, q_index) *
+                                  fe_values.JxW(q_index);
+
+            // Time derivative contribution: (1/dt) *u^{n-1} * phi_i * phi_j
+            cell_rhs(i) += (1.0 / time_step) * u_old *
+                          fe_values.shape_value(i, q_index) * fe_values.JxW(q_index);
+
+            // Nonlinear term: u^{n-1} * (u^{n-1})^2 - 1 * phi_i * phi_j
+            // const double u_old = old_solution(local_dof_indices[i]);
+            cell_rhs(i) += u_old * (u_old * u_old - 1.0) *
+                          fe_values.shape_value(i, q_index) * fe_values.JxW(q_index);
+
+          }
+        }
+      }
+
+      cell->get_dof_indices(local_dof_indices);
+
+      // Loops over the dof indices to fill the entries of the system_matrix with the local data
+      for(unsigned int i : fe_values.dof_indices()){
+        for(unsigned int j : fe_values.dof_indices()){
+          system_matrix.add(local_dof_indices[i], 
+                            local_dof_indices[j],
+                            cell_matrix(i, j));
+        }
+
+        // Loops over the dof indices to store the local data in the global RHS vector
+        system_rhs(local_dof_indices[i]) += cell_rhs(i);
+      }
+  }
+}
 
 
   // @sect4{<code>HeatEquation::solve_time_step</code>}
@@ -466,6 +537,7 @@ namespace Step26
 
     output_results();
 
+
     // Then we start the main loop until the computed time exceeds our
     // end time of 0.5. The first task is to build the right hand
     // side of the linear system we need to solve in each time step.
@@ -479,11 +551,12 @@ namespace Step26
 
         std::cout << "Time step " << timestep_number << " at t=" << time
                   << std::endl;
+        assemble_system();
+        
+        // mass_matrix.vmult(system_rhs, old_solution);
 
-        mass_matrix.vmult(system_rhs, old_solution);
-
-        laplace_matrix.vmult(tmp, old_solution);
-        system_rhs.add(-(1 - theta) * time_step, tmp);
+        // laplace_matrix.vmult(tmp, old_solution);
+        // system_rhs.add(-(1 - theta) * time_step, tmp);
 
         // The second piece is to compute the contributions of the source
         // terms. This corresponds to the term $k_n
@@ -492,22 +565,22 @@ namespace Step26
         // vectors $F$, where we set the time of the right hand side
         // (source) function before we evaluate it. The result of this
         // all ends up in the forcing_terms variable:
-        RightHandSide<dim> rhs_function;
-        rhs_function.set_time(time);
-        VectorTools::create_right_hand_side(dof_handler,
-                                            QGauss<dim>(fe.degree + 1),
-                                            rhs_function,
-                                            tmp);
-        forcing_terms = tmp;
-        forcing_terms *= time_step * theta;
+        // RightHandSide<dim> rhs_function;
+        // rhs_function.set_time(time);
+        // VectorTools::create_right_hand_side(dof_handler,
+        //                                     QGauss<dim>(fe.degree + 1),
+        //                                     rhs_function,
+        //                                     tmp);
+        // forcing_terms = tmp;
+        // forcing_terms *= time_step * theta;
 
-        rhs_function.set_time(time - time_step);
-        VectorTools::create_right_hand_side(dof_handler,
-                                            QGauss<dim>(fe.degree + 1),
-                                            rhs_function,
-                                            tmp);
+        // rhs_function.set_time(time - time_step);
+        // VectorTools::create_right_hand_side(dof_handler,
+        //                                     QGauss<dim>(fe.degree + 1),
+        //                                     rhs_function,
+        //                                     tmp);
 
-        forcing_terms.add(time_step * (1 - theta), tmp);
+        // forcing_terms.add(time_step * (1 - theta), tmp);
 
         // Next, we add the forcing terms to the ones that
         // come from the time stepping, and also build the matrix
@@ -515,12 +588,12 @@ namespace Step26
         // The final piece of these operations is to eliminate
         // hanging node constrained degrees of freedom from the
         // linear system:
-        system_rhs += forcing_terms;
+        // system_rhs += forcing_terms;
 
-        system_matrix.copy_from(mass_matrix);
-        system_matrix.add(theta * time_step, laplace_matrix);
+        // system_matrix.copy_from(mass_matrix);
+        // system_matrix.add(1, laplace_matrix);
 
-        constraints.condense(system_matrix, system_rhs);
+        // constraints.condense(system_matrix, system_rhs);
 
         // There is one more operation we need to do before we
         // can solve it: boundary values. To this end, we create
@@ -528,21 +601,21 @@ namespace Step26
         // of the current time step, and evaluate it as we have
         // done many times before. The result is used to also
         // set the correct boundary values in the linear system:
-        {
-          BoundaryValues<dim> boundary_values_function;
-          boundary_values_function.set_time(time);
+        // {
+        //   BoundaryValues<dim> boundary_values_function;
+        //   boundary_values_function.set_time(time);
 
-          std::map<types::global_dof_index, double> boundary_values;
-          VectorTools::interpolate_boundary_values(dof_handler,
-                                                   0,
-                                                   boundary_values_function,
-                                                   boundary_values);
+        //   std::map<types::global_dof_index, double> boundary_values;
+        //   VectorTools::interpolate_boundary_values(dof_handler,
+        //                                            0,
+        //                                            boundary_values_function,
+        //                                            boundary_values);
 
-          MatrixTools::apply_boundary_values(boundary_values,
-                                             system_matrix,
-                                             solution,
-                                             system_rhs);
-        }
+        //   MatrixTools::apply_boundary_values(boundary_values,
+        //                                      system_matrix,
+        //                                      solution,
+        //                                      system_rhs);
+        // }
 
         // With this out of the way, all we have to do is solve the
         // system, generate graphical data, and...
