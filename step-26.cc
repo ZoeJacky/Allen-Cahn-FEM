@@ -44,6 +44,7 @@
 #include <deal.II/numerics/error_estimator.h>
 #include <deal.II/numerics/solution_transfer.h>
 #include <deal.II/numerics/matrix_tools.h>
+#include <deal.II/base/function_parser.h>
 
 #include <fstream>
 #include <iostream>
@@ -203,7 +204,7 @@ namespace Step26
   HeatEquation<dim>::HeatEquation()
     : fe(1)
     , dof_handler(triangulation)
-    , time_step(1. / 100)
+    , time_step(1. / 1000)
     , theta(0.5)
   {}
 
@@ -287,6 +288,7 @@ void HeatEquation<dim>::assemble_system()
       FullMatrix<double> cell_matrix(dofs_per_cell, dofs_per_cell);
       Vector<double> cell_rhs(dofs_per_cell);
       std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
+      fe_values.get_function_values(old_solution,old_solution_values);
 
       for(const unsigned int q_index : fe_values.quadrature_point_indices()){
         const double u_old = old_solution_values[q_index]; // u^{n-1}
@@ -308,8 +310,8 @@ void HeatEquation<dim>::assemble_system()
 
             // Nonlinear term: u^{n-1} * (u^{n-1})^2 - 1 * phi_i * phi_j
             // const double u_old = old_solution(local_dof_indices[i]);
-            cell_rhs(i) += u_old * (u_old * u_old - 1.0) *
-                          fe_values.shape_value(i, q_index) * fe_values.JxW(q_index);
+            // cell_rhs(i) += u_old * (u_old * u_old - 1.0) *
+            //               fe_values.shape_value(i, q_index) * fe_values.JxW(q_index);
 
           }
         }
@@ -531,7 +533,7 @@ void HeatEquation<dim>::assemble_system()
 
 
     VectorTools::interpolate(dof_handler,
-                             Functions::ZeroFunction<dim>(),
+                             FunctionParser<dim>("sin(x)"),
                              old_solution);
     solution = old_solution;
 
