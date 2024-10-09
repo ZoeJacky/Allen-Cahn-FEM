@@ -211,8 +211,8 @@ void HeatEquation<dim>::assemble_system()
       fe_values.get_function_values(old_solution,old_solution_values);
 
       for(const unsigned int q_index : fe_values.quadrature_point_indices()){
-        
-        const double u_old = 1;
+        // u^{n-1}
+        const double u_old = old_solution_values[q_index]; 
         for(const unsigned int i : fe_values.dof_indices()){
           for(const unsigned int j : fe_values.dof_indices()){
             
@@ -221,19 +221,15 @@ void HeatEquation<dim>::assemble_system()
                                   fe_values.JxW(q_index);
 
             
-            cell_matrix(i, j) += fe_values.shape_grad(i, q_index) *
+            cell_matrix(i, j) += 0.01*fe_values.shape_grad(i, q_index) *
                                   fe_values.shape_grad(j, q_index) *
                                   fe_values.JxW(q_index);
 
-            
-            cell_rhs(i) += (1.0 / time_step) * u_old *
-                          fe_values.shape_value(i, q_index) * fe_values.JxW(q_index);
-
-            
-            
-            
-
           }
+          cell_rhs(i) += (1.0 / time_step) * u_old *
+                          fe_values.shape_value(i, q_index) * fe_values.JxW(q_index);
+          cell_rhs(i) += -u_old * (u_old * u_old - 1.0) *
+                          fe_values.shape_value(i, q_index) * fe_values.JxW(q_index);
         }
       }
 
@@ -247,67 +243,103 @@ void HeatEquation<dim>::assemble_system()
                             cell_matrix(i, j));
         }
 
-        
         system_rhs(local_dof_indices[i]) += cell_rhs(i);
       }
   }
 }
 
 
+
   
-  
-  
-  
-  template <int dim>
-  void HeatEquation<dim>::solve_time_step()
+template <int dim>
+void HeatEquation<dim>::solve_time_step()
+{
+  SolverControl            solver_control(1000, 1e-8 * system_rhs.l2_norm());
+  SolverCG<Vector<double>> cg(solver_control);
+
+  PreconditionSSOR<SparseMatrix<double>> preconditioner;
+  preconditioner.initialize(system_matrix, 1.0);
+
+  cg.solve(system_matrix, solution, system_rhs, preconditioner);
+
+  constraints.distribute(solution);
+
+  std::cout << "     " << solver_control.last_step() << " CG iterations."
+            << std::endl;
+}
+
+
+
+template <int dim>
+void HeatEquation<dim>::output_results() const
+{
+  DataOut<dim> data_out;
+
+  data_out.attach_dof_handler(dof_handler);
+  data_out.add_data_vector(solution, "U");
+
+  data_out.build_patches();
+
+  data_out.set_flags(DataOutBase::VtkFlags(time, timestep_number));
+
+  const std::string filename =
+    "solution-" + Utilities::int_to_string(timestep_number, 3) + ".vtk";
+  std::ofstream output(filename);
+  data_out.write_vtk(output);
+}
+
+
+        
+template <int dim>
+  void HeatEquation<dim>::run()
   {
-    SolverControl            solver_control(1000, 1e-8 * system_rhs.l2_norm());
-    SolverCG<Vector<double>> cg(solver_control);
+    const unsigned int initial_global_refinement       = 5;
 
-    PreconditionSSOR<SparseMatrix<double>> preconditioner;
-    preconditioner.initialize(system_matrix, 1.0);
+    GridGenerator::hyper_cube(triangulation, -1, 1);
+    triangulation.refine_global(initial_global_refinement);
 
-    cg.solve(system_matrix, solution, system_rhs, preconditioner);
+    setup_system();
 
-    constraints.distribute(solution);
+    unsigned int pre_refinement_step = 0;
 
-    std::cout << "     " << solver_control.last_step() << " CG iterations."
-              << std::endl;
-  }
+    Vector<double> tmp;
+    Vector<double> forcing_terms;
 
- 
-  
-  template <int dim>
-  void HeatEquation<dim>::output_results() const
-  {
-    DataOut<dim> data_out;
+  start_time_iteration:
 
-    data_out.attach_dof_handler(dof_handler);
-    data_out.add_data_vector(solution, "U");
+    time            = 0.0;
+    timestep_number = 0;
 
-    data_out.build_patches();
+    tmp.reinit(solution.size());
+    forcing_terms.reinit(solution.size());
 
-    data_out.set_flags(DataOutBase::VtkFlags(time, timestep_number));
+    //initial condition: 0.05*sin(x)*sin(y)
+    VectorTools::interpolate(dof_handler,
+                             FunctionParser<dim>("0.05*sin(x)*sin(y)"),
+                             old_solution);
+    solution = old_solution;
 
-    const std::string filename =
-      "solution-" + Utilities::int_to_string(timestep_number, 3) + ".vtk";
-    std::ofstream output(filename);
-    data_out.write_vtk(output);
-  }
+    output_results();
 
 
+    while (time <= 0.5)
+      {
+        time += time_step;
+        ++timestep_number;
+
+        std::cout << "Time step " << timestep_number << " at t=" << time
+                  << std::endl;
+        assemble_system();
         
         
         solve_time_step();
 
         output_results();
 
-   
-
         old_solution = solution;
       }
   }
-} 
+}
 
 
 
