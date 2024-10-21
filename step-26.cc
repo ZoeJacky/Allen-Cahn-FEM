@@ -118,7 +118,7 @@ namespace Step26
     Assert(dim == 2, ExcNotImplemented());
     const double time = this->get_time();
     const double pi=M_PI;
-    return std::pow(sin(pi*p[0])*cos(time),3)-sin(pi*p[0])*sin(time)+(pi*pi - 1)*sin(pi*p[0])*cos(time);
+    return /* std::pow(sin(pi*p[0])*cos(time),3) */  -sin(pi*p[0])*sin(time)+(pi*pi  /*- 1*/ )*sin(pi*p[0])*cos(time);
   }
 
 
@@ -167,6 +167,15 @@ namespace Step26
 
     constraints.clear();
     DoFTools::make_hanging_node_constraints(dof_handler, constraints);
+    VectorTools::interpolate_boundary_values(dof_handler,
+                                            types::boundary_id(0),
+                                            Functions::ZeroFunction<dim>(),
+                                            constraints);
+    VectorTools::interpolate_boundary_values(dof_handler,
+                                            types::boundary_id(1),
+                                            Functions::ZeroFunction<dim>(),
+                                            constraints);
+  
     constraints.close();
 
     DynamicSparsityPattern dsp(dof_handler.n_dofs());
@@ -204,7 +213,9 @@ namespace Step26
     const unsigned int n_q_points    = quadrature_formula.size();
     std::vector<double> old_solution_values(n_q_points);
 
-    
+    RightHandSide<dim> rhs_function;
+    rhs_function.set_time(time);
+
     for (const auto &cell : dof_handler.active_cell_iterators())
     {
         fe_values.reinit(cell);
@@ -226,15 +237,18 @@ namespace Step26
                                     fe_values.JxW(q_index);
 
               
-              cell_matrix(i, j) += 0.01*fe_values.shape_grad(i, q_index) *
+              cell_matrix(i, j) += 1*fe_values.shape_grad(i, q_index) *
                                     fe_values.shape_grad(j, q_index) *
                                     fe_values.JxW(q_index);
 
             }
-            cell_rhs(i) += (1.0 / time_step) * u_old *
-                            fe_values.shape_value(i, q_index) * fe_values.JxW(q_index);
-            cell_rhs(i) += -u_old * (u_old * u_old - 1.0) *
-                            fe_values.shape_value(i, q_index) * fe_values.JxW(q_index);
+
+            double rhs_value = rhs_function.value(fe_values.quadrature_point(q_index));
+            // cell_rhs(i) += (1.0 / time_step) * u_old *
+            //                 fe_values.shape_value(i, q_index) * fe_values.JxW(q_index);
+            // cell_rhs(i) += -u_old * (u_old * u_old - 1.0) *
+            //                 fe_values.shape_value(i, q_index) * fe_values.JxW(q_index);
+            cell_rhs(i) += rhs_value *  fe_values.shape_value(i, q_index)* fe_values.JxW(q_index);
           }
         }
 
@@ -251,16 +265,15 @@ namespace Step26
           system_rhs(local_dof_indices[i]) += cell_rhs(i);
         }
     }
-    RightHandSide<dim> rhs_function;
-    rhs_function.set_time(time);
-    VectorTools::create_right_hand_side(dof_handler,
-                                        QGauss<dim>(fe.degree + 1),
-                                        rhs_function,
-                                        tmp);
-    forcing_terms = tmp;
-    forcing_terms *= time_step;
+    
+    // VectorTools::create_right_hand_side(dof_handler,
+    //                                     QGauss<dim>(fe.degree + 1),
+    //                                     rhs_function,
+    //                                     tmp);
+    // forcing_terms = tmp;
+    // forcing_terms *= time_step;
 
-    system_rhs += forcing_terms;
+    // system_rhs += forcing_terms;
   }
 
 
@@ -311,7 +324,7 @@ namespace Step26
     const unsigned int initial_global_refinement       = 5;
     const std::string initial_condition = "sin(" + std::to_string(M_PI) + "*x)";
 
-    GridGenerator::hyper_cube(triangulation, -1, 1);
+    GridGenerator::hyper_cube(triangulation, -1, 1, true);
     triangulation.refine_global(initial_global_refinement);
 
     setup_system();
@@ -329,7 +342,7 @@ namespace Step26
     // tmp.reinit(solution.size());
     // forcing_terms.reinit(solution.size());
 
-    //initial condition: 0.05*sin(x)*sin(y)
+    //initial condition: sin(pi*x)
     VectorTools::interpolate(dof_handler,
                               FunctionParser<dim>(initial_condition),
                               old_solution);
