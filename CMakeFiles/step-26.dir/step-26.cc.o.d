@@ -2397,6 +2397,9 @@ CMakeFiles/step-26.dir/step-26.cc.o: \
   /Users/lishuangshuang/Downloads/FEM/include/deal.II/numerics/solution_transfer.h \
   /Users/lishuangshuang/Downloads/FEM/include/deal.II/numerics/matrix_tools.h \
   /Users/lishuangshuang/Downloads/FEM/include/deal.II/numerics/matrix_creator.h \
+  /Users/lishuangshuang/Downloads/FEM/include/deal.II/base/function_parser.h \
+  /Users/lishuangshuang/Downloads/FEM/include/deal.II/base/auto_derivative_function.h \
+  /Users/lishuangshuang/Downloads/FEM/include/deal.II/base/mu_parser_internal.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX14.0.sdk/usr/include/c++/v1/fstream \
   /Library/Developer/CommandLineTools/SDKs/MacOSX14.0.sdk/usr/include/c++/v1/filesystem \
   /Library/Developer/CommandLineTools/SDKs/MacOSX14.0.sdk/usr/include/c++/v1/__filesystem/copy_options.h \

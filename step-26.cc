@@ -240,12 +240,14 @@ namespace Step26
               cell_matrix(i, j) += 1*fe_values.shape_grad(i, q_index) *
                                     fe_values.shape_grad(j, q_index) *
                                     fe_values.JxW(q_index);
+              // cell_rhs(i) += (1.0 / time_step) * u_old * fe_values.shape_value(i, q_index) * 
+              //                 fe_values.shape_value(j, q_index) * fe_values.JxW(q_index);
 
             }
 
             double rhs_value = rhs_function.value(fe_values.quadrature_point(q_index));
-            // cell_rhs(i) += (1.0 / time_step) * u_old *
-            //                 fe_values.shape_value(i, q_index) * fe_values.JxW(q_index);
+            cell_rhs(i) += (1.0 / time_step) * u_old *
+                            fe_values.shape_value(i, q_index) * fe_values.JxW(q_index);
             // cell_rhs(i) += -u_old * (u_old * u_old - 1.0) *
             //                 fe_values.shape_value(i, q_index) * fe_values.JxW(q_index);
             cell_rhs(i) += rhs_value *  fe_values.shape_value(i, q_index)* fe_values.JxW(q_index);
@@ -254,16 +256,17 @@ namespace Step26
 
         cell->get_dof_indices(local_dof_indices);
 
+constraints.distribute_local_to_global(cell_matrix,cell_rhs,local_dof_indices,system_matrix,system_rhs);
         
-        for(unsigned int i : fe_values.dof_indices()){
-          for(unsigned int j : fe_values.dof_indices()){
-            system_matrix.add(local_dof_indices[i], 
-                              local_dof_indices[j],
-                              cell_matrix(i, j));
-          }
+        // for(unsigned int i : fe_values.dof_indices()){
+        //   for(unsigned int j : fe_values.dof_indices()){
+        //     system_matrix.add(local_dof_indices[i], 
+        //                       local_dof_indices[j],
+        //                       cell_matrix(i, j));
+        //   }
 
-          system_rhs(local_dof_indices[i]) += cell_rhs(i);
-        }
+        //   system_rhs(local_dof_indices[i]) += cell_rhs(i);
+        // }
     }
     
     // VectorTools::create_right_hand_side(dof_handler,

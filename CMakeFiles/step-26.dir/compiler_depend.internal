@@ -974,6 +974,7 @@ CMakeFiles/step-26.dir/step-26.cc.o
  /Library/Developer/CommandLineTools/usr/lib/clang/15.0.0/include/xtestintrin.h
  /Users/lishuangshuang/Downloads/FEM/include/deal.II/base/aligned_vector.h
  /Users/lishuangshuang/Downloads/FEM/include/deal.II/base/array_view.h
+ /Users/lishuangshuang/Downloads/FEM/include/deal.II/base/auto_derivative_function.h
  /Users/lishuangshuang/Downloads/FEM/include/deal.II/base/bounding_box.h
  /Users/lishuangshuang/Downloads/FEM/include/deal.II/base/communication_pattern_base.h
  /Users/lishuangshuang/Downloads/FEM/include/deal.II/base/complex_overloads.h
@@ -984,6 +985,7 @@ CMakeFiles/step-26.dir/step-26.cc.o
  /Users/lishuangshuang/Downloads/FEM/include/deal.II/base/derivative_form.h
  /Users/lishuangshuang/Downloads/FEM/include/deal.II/base/exceptions.h
  /Users/lishuangshuang/Downloads/FEM/include/deal.II/base/function.h
+ /Users/lishuangshuang/Downloads/FEM/include/deal.II/base/function_parser.h
  /Users/lishuangshuang/Downloads/FEM/include/deal.II/base/function_time.h
  /Users/lishuangshuang/Downloads/FEM/include/deal.II/base/geometry_info.h
  /Users/lishuangshuang/Downloads/FEM/include/deal.II/base/index_set.h
@@ -999,6 +1001,7 @@ CMakeFiles/step-26.dir/step-26.cc.o
  /Users/lishuangshuang/Downloads/FEM/include/deal.II/base/mpi_remote_point_evaluation.h
  /Users/lishuangshuang/Downloads/FEM/include/deal.II/base/mpi_stub.h
  /Users/lishuangshuang/Downloads/FEM/include/deal.II/base/mpi_tags.h
+ /Users/lishuangshuang/Downloads/FEM/include/deal.II/base/mu_parser_internal.h
  /Users/lishuangshuang/Downloads/FEM/include/deal.II/base/mutex.h
  /Users/lishuangshuang/Downloads/FEM/include/deal.II/base/ndarray.h
  /Users/lishuangshuang/Downloads/FEM/include/deal.II/base/numbers.h

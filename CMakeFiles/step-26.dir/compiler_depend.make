@@ -973,6 +973,7 @@ CMakeFiles/step-26.dir/step-26.cc.o: step-26.cc \
   /Library/Developer/CommandLineTools/usr/lib/clang/15.0.0/include/xtestintrin.h \
   /Users/lishuangshuang/Downloads/FEM/include/deal.II/base/aligned_vector.h \
   /Users/lishuangshuang/Downloads/FEM/include/deal.II/base/array_view.h \
+  /Users/lishuangshuang/Downloads/FEM/include/deal.II/base/auto_derivative_function.h \
   /Users/lishuangshuang/Downloads/FEM/include/deal.II/base/bounding_box.h \
   /Users/lishuangshuang/Downloads/FEM/include/deal.II/base/communication_pattern_base.h \
   /Users/lishuangshuang/Downloads/FEM/include/deal.II/base/complex_overloads.h \
@@ -983,6 +984,7 @@ CMakeFiles/step-26.dir/step-26.cc.o: step-26.cc \
   /Users/lishuangshuang/Downloads/FEM/include/deal.II/base/derivative_form.h \
   /Users/lishuangshuang/Downloads/FEM/include/deal.II/base/exceptions.h \
   /Users/lishuangshuang/Downloads/FEM/include/deal.II/base/function.h \
+  /Users/lishuangshuang/Downloads/FEM/include/deal.II/base/function_parser.h \
   /Users/lishuangshuang/Downloads/FEM/include/deal.II/base/function_time.h \
   /Users/lishuangshuang/Downloads/FEM/include/deal.II/base/geometry_info.h \
   /Users/lishuangshuang/Downloads/FEM/include/deal.II/base/index_set.h \
@@ -998,6 +1000,7 @@ CMakeFiles/step-26.dir/step-26.cc.o: step-26.cc \
   /Users/lishuangshuang/Downloads/FEM/include/deal.II/base/mpi_remote_point_evaluation.h \
   /Users/lishuangshuang/Downloads/FEM/include/deal.II/base/mpi_stub.h \
   /Users/lishuangshuang/Downloads/FEM/include/deal.II/base/mpi_tags.h \
+  /Users/lishuangshuang/Downloads/FEM/include/deal.II/base/mu_parser_internal.h \
   /Users/lishuangshuang/Downloads/FEM/include/deal.II/base/mutex.h \
   /Users/lishuangshuang/Downloads/FEM/include/deal.II/base/ndarray.h \
   /Users/lishuangshuang/Downloads/FEM/include/deal.II/base/numbers.h \
@@ -3551,14 +3554,6 @@ CMakeFiles/step-26.dir/step-26.cc.o: step-26.cc \
 
 /Users/lishuangshuang/Downloads/FEM/include/deal.II/bundled/boost/mpl/aux_/na_fwd.hpp:
 
-/Users/lishuangshuang/Downloads/FEM/include/deal.II/bundled/boost/variant/detail/variant_io.hpp:
-
-/Library/Developer/CommandLineTools/SDKs/MacOSX14.0.sdk/usr/include/c++/v1/__iterator/access.h:
-
-/Library/Developer/CommandLineTools/SDKs/MacOSX14.0.sdk/usr/include/c++/v1/__memory/auto_ptr.h:
-
-/Users/lishuangshuang/Downloads/FEM/include/deal.II/bundled/boost/mpl/key_type_fwd.hpp:
-
 /Library/Developer/CommandLineTools/SDKs/MacOSX14.0.sdk/usr/include/c++/v1/__memory/unique_ptr.h:
 
 /Users/lishuangshuang/Downloads/FEM/include/deal.II/bundled/Kokkos_Array.hpp:
@@ -4393,6 +4388,8 @@ CMakeFiles/step-26.dir/step-26.cc.o: step-26.cc \
 
 /Users/lishuangshuang/Downloads/FEM/include/deal.II/base/mutex.h:
 
+/Users/lishuangshuang/Downloads/FEM/include/deal.II/base/mu_parser_internal.h:
+
 /Library/Developer/CommandLineTools/SDKs/MacOSX14.0.sdk/usr/include/c++/v1/__algorithm/ranges_is_heap.h:
 
 /Users/lishuangshuang/Downloads/FEM/include/deal.II/base/mpi_stub.h:
@@ -4435,6 +4432,8 @@ CMakeFiles/step-26.dir/step-26.cc.o: step-26.cc \
 
 /Users/lishuangshuang/Downloads/FEM/include/deal.II/base/iterator_range.h:
 
+/Users/lishuangshuang/Downloads/FEM/include/deal.II/base/function_parser.h:
+
 /Users/lishuangshuang/Downloads/FEM/include/deal.II/bundled/boost/mpl/list/aux_/pop_front.hpp:
 
 /Users/lishuangshuang/Downloads/FEM/include/deal.II/base/cuda_size.h:
@@ -4448,6 +4447,8 @@ CMakeFiles/step-26.dir/step-26.cc.o: step-26.cc \
 /Users/lishuangshuang/Downloads/FEM/include/deal.II/base/communication_pattern_base.h:
 
 /Users/lishuangshuang/Downloads/FEM/include/deal.II/base/bounding_box.h:
+
+/Users/lishuangshuang/Downloads/FEM/include/deal.II/base/auto_derivative_function.h:
 
 /Users/lishuangshuang/Downloads/FEM/include/deal.II/base/array_view.h:
 
@@ -5868,6 +5869,14 @@ step-26.cc:
 /Users/lishuangshuang/Downloads/FEM/include/deal.II/bundled/boost/serialization/array_optimization.hpp:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX14.0.sdk/usr/include/c++/v1/__type_traits/void_t.h:
+
+/Users/lishuangshuang/Downloads/FEM/include/deal.II/bundled/boost/variant/detail/variant_io.hpp:
+
+/Users/lishuangshuang/Downloads/FEM/include/deal.II/bundled/boost/mpl/key_type_fwd.hpp:
+
+/Library/Developer/CommandLineTools/SDKs/MacOSX14.0.sdk/usr/include/c++/v1/__iterator/access.h:
+
+/Library/Developer/CommandLineTools/SDKs/MacOSX14.0.sdk/usr/include/c++/v1/__memory/auto_ptr.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX14.0.sdk/usr/include/c++/v1/__bit/bit_width.h:
 
