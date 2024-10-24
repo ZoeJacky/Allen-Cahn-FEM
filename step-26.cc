@@ -118,7 +118,7 @@ namespace Step26
     Assert(dim == 2, ExcNotImplemented());
     const double time = this->get_time();
     const double pi=M_PI;
-    return /* std::pow(sin(pi*p[0])*cos(time),3) */  -sin(pi*p[0])*sin(time)+(pi*pi  /*- 1*/ )*sin(pi*p[0])*cos(time);
+    return std::pow(sin(pi*p[0])*cos(time),3)  -sin(pi*p[0])*sin(time)+(pi*pi  - 1)*sin(pi*p[0])*cos(time);
   }
 
 
@@ -240,23 +240,24 @@ namespace Step26
               cell_matrix(i, j) += 1*fe_values.shape_grad(i, q_index) *
                                     fe_values.shape_grad(j, q_index) *
                                     fe_values.JxW(q_index);
-              // cell_rhs(i) += (1.0 / time_step) * u_old * fe_values.shape_value(i, q_index) * 
-              //                 fe_values.shape_value(j, q_index) * fe_values.JxW(q_index);
 
             }
 
             double rhs_value = rhs_function.value(fe_values.quadrature_point(q_index));
+            // Mu^{n-1}
             cell_rhs(i) += (1.0 / time_step) * u_old *
                             fe_values.shape_value(i, q_index) * fe_values.JxW(q_index);
-            // cell_rhs(i) += -u_old * (u_old * u_old - 1.0) *
-            //                 fe_values.shape_value(i, q_index) * fe_values.JxW(q_index);
+            // nonlinear part
+            cell_rhs(i) += -u_old * (u_old * u_old - 1.0) *
+                            fe_values.shape_value(i, q_index) * fe_values.JxW(q_index);
+            // forcing term
             cell_rhs(i) += rhs_value *  fe_values.shape_value(i, q_index)* fe_values.JxW(q_index);
           }
         }
 
         cell->get_dof_indices(local_dof_indices);
 
-constraints.distribute_local_to_global(cell_matrix,cell_rhs,local_dof_indices,system_matrix,system_rhs);
+    constraints.distribute_local_to_global(cell_matrix,cell_rhs,local_dof_indices,system_matrix,system_rhs);
         
         // for(unsigned int i : fe_values.dof_indices()){
         //   for(unsigned int j : fe_values.dof_indices()){
