@@ -45,6 +45,7 @@
 #include <deal.II/numerics/solution_transfer.h>
 #include <deal.II/numerics/matrix_tools.h>
 #include <deal.II/base/function_parser.h>
+#include <deal.II/base/convergence_table.h>
 
 #include <fstream>
 #include <iostream>
@@ -68,6 +69,7 @@ namespace Step26
     void setup_system();
     void assemble_system();
     void solve_time_step();
+    void process_solution();
     void output_results() const;
     
     
@@ -88,7 +90,59 @@ namespace Step26
     double       time;
     double       time_step;
     unsigned int timestep_number;
+
+    ConvergenceTable convergence_table;
   };
+
+
+  template <int dim>
+  class Solution : public Function<dim>
+  {
+  public:
+    // Constructor, with a time parameter
+    Solution(double time = 0.0)
+      : Function<dim>(), time(time) {}
+
+    // Function to set the current time (useful for time-dependent solutions)
+    void set_time(double new_time)
+    {
+      time = new_time;
+    }
+    virtual double value(const Point<dim>  &p,
+                         const unsigned int component = 0) const override;
+ 
+    virtual Tensor<1, dim>
+    gradient(const Point<dim>  &p,
+             const unsigned int component = 0) const override;
+
+  private:
+    double time;  // Current time value, to evaluate cos(t)
+  };
+ 
+ 
+  template <int dim>
+  double Solution<dim>::value(const Point<dim> &p, const unsigned int) const
+  {
+    double value = std::sin(M_PI*p[0])*std::cos(time);
+    return value;
+  }
+ 
+ 
+  template <int dim>
+  Tensor<1, dim> Solution<dim>::gradient(const Point<dim> &p,
+                                         const unsigned int) const
+  {
+    Tensor<1, dim> grad;
+
+    // Calculate the derivative with respect to x in the first dimension
+    grad[0] = M_PI * std::cos(M_PI * p[0]) * std::cos(time);
+
+    // For higher dimensions, set the other components to zero
+    for (unsigned int i = 1; i < dim; ++i)
+      grad[i] = 0;
+ 
+    return grad;
+  }
  
   
   template <int dim>
@@ -258,26 +312,7 @@ namespace Step26
         cell->get_dof_indices(local_dof_indices);
 
     constraints.distribute_local_to_global(cell_matrix,cell_rhs,local_dof_indices,system_matrix,system_rhs);
-        
-        // for(unsigned int i : fe_values.dof_indices()){
-        //   for(unsigned int j : fe_values.dof_indices()){
-        //     system_matrix.add(local_dof_indices[i], 
-        //                       local_dof_indices[j],
-        //                       cell_matrix(i, j));
-        //   }
-
-        //   system_rhs(local_dof_indices[i]) += cell_rhs(i);
-        // }
     }
-    
-    // VectorTools::create_right_hand_side(dof_handler,
-    //                                     QGauss<dim>(fe.degree + 1),
-    //                                     rhs_function,
-    //                                     tmp);
-    // forcing_terms = tmp;
-    // forcing_terms *= time_step;
-
-    // system_rhs += forcing_terms;
   }
 
 
@@ -300,6 +335,45 @@ namespace Step26
               << std::endl;
   }
 
+
+  template <int dim>
+  void HeatEquation<dim>::process_solution()
+  {
+    Vector<float> difference_per_cell(triangulation.n_active_cells());
+    VectorTools::integrate_difference(dof_handler,
+                                      solution,
+                                      Solution<dim>(),
+                                      difference_per_cell,
+                                      QGauss<dim>(fe.degree + 1),
+                                      VectorTools::L2_norm);
+    const double L2_error =
+      VectorTools::compute_global_error(triangulation,
+                                        difference_per_cell,
+                                        VectorTools::L2_norm);
+ 
+    VectorTools::integrate_difference(dof_handler,
+                                      solution,
+                                      Solution<dim>(),
+                                      difference_per_cell,
+                                      QGauss<dim>(fe.degree + 1),
+                                      VectorTools::H1_seminorm);
+    const double H1_error =
+      VectorTools::compute_global_error(triangulation,
+                                        difference_per_cell,
+                                        VectorTools::H1_seminorm);
+ 
+    const unsigned int n_active_cells = triangulation.n_active_cells();
+    const unsigned int n_dofs         = dof_handler.n_dofs();
+ 
+    std::cout << "   Number of active cells:       " << n_active_cells
+              << std::endl
+              << "   Number of degrees of freedom: " << n_dofs << std::endl;
+    convergence_table.add_value("time step", timestep_number);
+    convergence_table.add_value("cells", n_active_cells);
+    convergence_table.add_value("dofs", n_dofs);
+    convergence_table.add_value("L2", L2_error);
+    convergence_table.add_value("H1", H1_error);
+  }
 
 
   template <int dim>
@@ -364,11 +438,28 @@ namespace Step26
         assemble_system();
         
         solve_time_step();
+        process_solution();
 
         output_results();
 
         old_solution = solution;
       }
+    convergence_table.set_precision("L2", 3);
+    convergence_table.set_precision("H1", 3);
+ 
+    convergence_table.set_scientific("L2", true);
+    convergence_table.set_scientific("H1", true);
+
+    convergence_table.set_tex_caption("time step", "\\# time step");
+    convergence_table.set_tex_caption("cells", "\\# cells");
+    convergence_table.set_tex_caption("dofs", "\\# dofs");
+    convergence_table.set_tex_caption("L2", "@f$L^2@f$-error");
+    convergence_table.set_tex_caption("H1", "@f$H^1@f$-error");
+ 
+    convergence_table.set_tex_format("dofs", "r");
+ 
+    std::cout << std::endl;
+    convergence_table.write_text(std::cout);
   }
 }
 
