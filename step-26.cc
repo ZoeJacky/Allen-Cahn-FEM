@@ -90,6 +90,7 @@ namespace Step26
     double       time;
     double       time_step;
     unsigned int timestep_number;
+    const double epsilon;
 
     ConvergenceTable convergence_table;
   };
@@ -173,6 +174,7 @@ namespace Step26
     const double time = this->get_time();
     const double pi=M_PI;
     return std::pow(sin(pi*p[0])*cos(time),3)  -sin(pi*p[0])*sin(time)+(pi*pi  - 1)*sin(pi*p[0])*cos(time);
+    // return 0;
   }
 
 
@@ -202,6 +204,7 @@ namespace Step26
     : fe(1)
     , dof_handler(triangulation)
     , time_step(1. / 500)
+    , epsilon(1)
   {}
 
 
@@ -266,6 +269,7 @@ namespace Step26
     const unsigned int dofs_per_cell = fe.n_dofs_per_cell();
     const unsigned int n_q_points    = quadrature_formula.size();
     std::vector<double> old_solution_values(n_q_points);
+    std::vector<Tensor<1, dim>> old_solution_gradients(n_q_points);
 
     RightHandSide<dim> rhs_function;
     rhs_function.set_time(time);
@@ -279,10 +283,14 @@ namespace Step26
         Vector<double> cell_rhs(dofs_per_cell);
         std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
         fe_values.get_function_values(old_solution,old_solution_values);
+        fe_values.get_function_gradients(old_solution,old_solution_gradients);
 
         for(const unsigned int q_index : fe_values.quadrature_point_indices()){
           // u^{n-1}
-          const double u_old = old_solution_values[q_index]; 
+          const double u_old = old_solution_values[q_index];
+          // \nabla u^{n-1}
+          const Tensor<1, dim> gradient_u_old = old_solution_gradients[q_index];
+
           for(const unsigned int i : fe_values.dof_indices()){
             for(const unsigned int j : fe_values.dof_indices()){
               
@@ -291,8 +299,15 @@ namespace Step26
                                     fe_values.JxW(q_index);
 
               
-              cell_matrix(i, j) += 1*fe_values.shape_grad(i, q_index) *
+              cell_matrix(i, j) += (epsilon / 2)*fe_values.shape_grad(i, q_index) *
                                     fe_values.shape_grad(j, q_index) *
+                                    fe_values.JxW(q_index);
+
+              cell_matrix(i, j) += (1/4)*(std::pow(fe_values.shape_value(i, q_index),3)+
+                                    std::pow(fe_values.shape_value(i, q_index),2)*u_old+
+                                    fe_values.shape_value(i, q_index)*std::pow(u_old,2)-
+                                    2*fe_values.shape_value(i, q_index))*
+                                    fe_values.shape_value(j, q_index) *
                                     fe_values.JxW(q_index);
 
             }
@@ -301,8 +316,13 @@ namespace Step26
             // Mu^{n-1}
             cell_rhs(i) += (1.0 / time_step) * u_old *
                             fe_values.shape_value(i, q_index) * fe_values.JxW(q_index);
+            
+            cell_rhs(i) += -(epsilon / 2) * gradient_u_old *
+                          fe_values.shape_grad(i, q_index) * 
+                          fe_values.JxW(q_index);
+
             // nonlinear part
-            cell_rhs(i) += -u_old * (u_old * u_old - 1.0) *
+            cell_rhs(i) += -(1/4) * (std::pow(u_old,3) + 2 * u_old) *
                             fe_values.shape_value(i, q_index) * fe_values.JxW(q_index);
             // forcing term
             cell_rhs(i) += rhs_value *  fe_values.shape_value(i, q_index)* fe_values.JxW(q_index);
@@ -388,7 +408,8 @@ namespace Step26
 
     data_out.set_flags(DataOutBase::VtkFlags(time, timestep_number));
 
-    const std::string filename =
+    const std::string output_directory = "./build/";
+    const std::string filename = output_directory +
       "solution-" + Utilities::int_to_string(timestep_number, 3) + ".vtk";
     std::ofstream output(filename);
     data_out.write_vtk(output);
