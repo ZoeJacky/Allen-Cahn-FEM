@@ -362,6 +362,7 @@ namespace Step26
       if(system_rhs.l2_norm()< 1e-8)
         {
           std::cout << "Converged, residual: "<< system_rhs.l2_norm() <<std::endl;
+          old_solution = solution = current_solution;
           break;
         }
       std::cout << "Current residual norm: "<< system_rhs.l2_norm()<<std::endl;
@@ -449,7 +450,6 @@ namespace Step26
 
     data_out.attach_dof_handler(dof_handler);
     data_out.add_data_vector(solution, "U");
-
     data_out.build_patches();
 
     data_out.set_flags(DataOutBase::VtkFlags(time, timestep_number));
@@ -507,7 +507,7 @@ namespace Step26
 
         output_results();
 
-        old_solution = solution;
+        // old_solution = solution;
       }
     convergence_table.set_precision("L2", 3);
     convergence_table.set_precision("H1", 3);
