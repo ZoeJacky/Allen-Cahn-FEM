@@ -251,6 +251,7 @@ namespace Step26
     solution.reinit(dof_handler.n_dofs());
     old_solution.reinit(dof_handler.n_dofs());
     system_rhs.reinit(dof_handler.n_dofs());
+    newton_update.reinit(dof_handler.n_dofs());
   }
 
 
@@ -272,8 +273,6 @@ namespace Step26
 
     const unsigned int dofs_per_cell = fe.n_dofs_per_cell();
     const unsigned int n_q_points    = quadrature_formula.size();
-    // std::vector<double> old_solution_values(n_q_points);
-    // std::vector<Tensor<1, dim>> old_solution_gradients(n_q_points);
 
     std::vector<double> solution_values(n_q_points);      // u_h^n (solution from current Newton iteration)
     std::vector<double> old_solution_values(n_q_points);  // u_h^{n-1} (solution from previous time step)
@@ -284,138 +283,70 @@ namespace Step26
     RightHandSide<dim> rhs_function;
     rhs_function.set_time(time);
 
-    do{
-      for (const auto &cell : dof_handler.active_cell_iterators())
-      {
-        fe_values.reinit(cell);
-
-        
-        FullMatrix<double> cell_matrix(dofs_per_cell, dofs_per_cell);
-        Vector<double> cell_rhs(dofs_per_cell);
-        std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
-        fe_values.get_function_values(old_solution,old_solution_values);
-        fe_values.get_function_gradients(old_solution,old_solution_gradients);
-        fe_values.get_function_values(current_solution,solution_values);
-        fe_values.get_function_gradients(current_solution,solution_gradients);
-
-        for(const unsigned int q_index : fe_values.quadrature_point_indices()){
-          // u^n
-          const double u_current = solution_values[q_index];
-          // \nabla uˆn
-          const Tensor<1, dim> gradient_u_current = solution_gradients[q_index];
-          // u^{n-1}
-          const double u_old = old_solution_values[q_index];
-          // \nabla u^{n-1}
-          const Tensor<1, dim> gradient_u_old = old_solution_gradients[q_index];
-
-          for(const unsigned int i : fe_values.dof_indices()){
-            for(const unsigned int j : fe_values.dof_indices()){
-              
-              cell_matrix(i, j) += (1.0 / time_step) * fe_values.shape_value(i, q_index) *
-                                    fe_values.shape_value(j, q_index) *
-                                    fe_values.JxW(q_index);
-
-              
-              cell_matrix(i, j) += (epsilon / 2)*fe_values.shape_grad(i, q_index) *
-                                    fe_values.shape_grad(j, q_index) *
-                                    fe_values.JxW(q_index);
-
-              cell_matrix(i, j) += (1/4)*(3*u_current*u_current+2*u_current*u_old+u_old*u_old-2) *
-                                    fe_values.shape_value(i, q_index) *
-                                    fe_values.shape_value(j, q_index) *
-                                    fe_values.JxW(q_index);
-
-            }
-
-            double rhs_value = rhs_function.value(fe_values.quadrature_point(q_index));
-            // (1/time_step)(u^{n-1}-u^n, \varphi_i)
-            cell_rhs(i) += (1.0 / time_step) * (u_old - u_current) *
-                            fe_values.shape_value(i, q_index) * fe_values.JxW(q_index);
-            // -(epsilon / 2)(\nabla(u^n + u^{n-1}), \nabla \varphi_i)
-            cell_rhs(i) += -(epsilon / 2) * (gradient_u_current + gradient_u_old) *
-                          fe_values.shape_grad(i, q_index) * 
-                          fe_values.JxW(q_index);
-
-            // nonlinear part
-            cell_rhs(i) += -(1/4) * (std::pow(u_current,3) + u_current*u_current*u_old + u_current*u_old*u_old + std::pow(u_old,3)-2*u_current - 2*u_old) *
-                            fe_values.shape_value(i, q_index) * fe_values.JxW(q_index);
-            // forcing term
-            cell_rhs(i) += rhs_value *  fe_values.shape_value(i, q_index)* fe_values.JxW(q_index);
-          }
-        }
-
-        cell->get_dof_indices(local_dof_indices);
-
-        constraints.distribute_local_to_global(cell_matrix,cell_rhs,local_dof_indices,system_matrix,system_rhs);
-      }
-      last_residual_norm = system_rhs.l2_norm();
-      solve_newtons_method();
-    }
-    while (last_residual_norm > 1e-6);
-
-    // for (const auto &cell : dof_handler.active_cell_iterators())
-    // {
-    //   fe_values.reinit(cell);
+    for (const auto &cell : dof_handler.active_cell_iterators())
+    {
+      fe_values.reinit(cell);
 
       
-    //   FullMatrix<double> cell_matrix(dofs_per_cell, dofs_per_cell);
-    //   Vector<double> cell_rhs(dofs_per_cell);
-    //   std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
-    //   fe_values.get_function_values(old_solution,old_solution_values);
-    //   fe_values.get_function_gradients(old_solution,old_solution_gradients);
-    //   fe_values.get_function_values(solution,solution_values);
-    //   fe_values.get_function_gradients(solution,solution_gradients);
+      FullMatrix<double> cell_matrix(dofs_per_cell, dofs_per_cell);
+      Vector<double> cell_rhs(dofs_per_cell);
+      std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
+      fe_values.get_function_values(old_solution,old_solution_values);
+      fe_values.get_function_gradients(old_solution,old_solution_gradients);
+      fe_values.get_function_values(current_solution,solution_values);
+      fe_values.get_function_gradients(current_solution,solution_gradients);
 
-    //   for(const unsigned int q_index : fe_values.quadrature_point_indices()){
-    //     // u^n
-    //     const double u_current = solution_values[q_index];
-    //     // \nabla uˆn
-    //     const Tensor<1, dim> gradient_u_current = solution_gradients[q_index];
-    //     // u^{n-1}
-    //     const double u_old = old_solution_values[q_index];
-    //     // \nabla u^{n-1}
-    //     const Tensor<1, dim> gradient_u_old = old_solution_gradients[q_index];
+      for(const unsigned int q_index : fe_values.quadrature_point_indices()){
+        // u^n
+        const double u_current = solution_values[q_index];
+        // \nabla uˆn
+        const Tensor<1, dim> gradient_u_current = solution_gradients[q_index];
+        // u^{n-1}
+        const double u_old = old_solution_values[q_index];
+        // \nabla u^{n-1}
+        const Tensor<1, dim> gradient_u_old = old_solution_gradients[q_index];
 
-    //     for(const unsigned int i : fe_values.dof_indices()){
-    //       for(const unsigned int j : fe_values.dof_indices()){
+        for(const unsigned int i : fe_values.dof_indices()){
+          for(const unsigned int j : fe_values.dof_indices()){
             
-    //         cell_matrix(i, j) += (1.0 / time_step) * fe_values.shape_value(i, q_index) *
-    //                               fe_values.shape_value(j, q_index) *
-    //                               fe_values.JxW(q_index);
+            cell_matrix(i, j) += (1.0 / time_step) * fe_values.shape_value(i, q_index) *
+                                  fe_values.shape_value(j, q_index) *
+                                  fe_values.JxW(q_index);
 
             
-    //         cell_matrix(i, j) += (epsilon / 2)*fe_values.shape_grad(i, q_index) *
-    //                               fe_values.shape_grad(j, q_index) *
-    //                               fe_values.JxW(q_index);
+            cell_matrix(i, j) += (epsilon / 2)*fe_values.shape_grad(i, q_index) *
+                                  fe_values.shape_grad(j, q_index) *
+                                  fe_values.JxW(q_index);
 
-    //         cell_matrix(i, j) += (1/4)*(3*u_current*u_current+2*u_current*u_old+u_old*u_old-2) *
-    //                               fe_values.shape_value(i, q_index) *
-    //                               fe_values.shape_value(j, q_index) *
-    //                               fe_values.JxW(q_index);
+            cell_matrix(i, j) += (1/4)*(3*u_current*u_current+2*u_current*u_old+u_old*u_old-2) *
+                                  fe_values.shape_value(i, q_index) *
+                                  fe_values.shape_value(j, q_index) *
+                                  fe_values.JxW(q_index);
 
-    //       }
+          }
 
-    //       double rhs_value = rhs_function.value(fe_values.quadrature_point(q_index));
-    //       // (1/time_step)(u^{n-1}-u^n, \varphi_i)
-    //       cell_rhs(i) += (1.0 / time_step) * (u_old - u_current) *
-    //                       fe_values.shape_value(i, q_index) * fe_values.JxW(q_index);
-    //       // -(epsilon / 2)(\nabla(u^n + u^{n-1}), \nabla \varphi_i)
-    //       cell_rhs(i) += -(epsilon / 2) * (gradient_u_current + gradient_u_old) *
-    //                     fe_values.shape_grad(i, q_index) * 
-    //                     fe_values.JxW(q_index);
+          double rhs_value = rhs_function.value(fe_values.quadrature_point(q_index));
+          // (1/time_step)(u^{n-1}-u^n, \varphi_i)
+          cell_rhs(i) += (1.0 / time_step) * (u_old - u_current) *
+                          fe_values.shape_value(i, q_index) * fe_values.JxW(q_index);
+          // -(epsilon / 2)(\nabla(u^n + u^{n-1}), \nabla \varphi_i)
+          cell_rhs(i) += -(epsilon / 2) * (gradient_u_current + gradient_u_old) *
+                        fe_values.shape_grad(i, q_index) * 
+                        fe_values.JxW(q_index);
 
-    //       // nonlinear part
-    //       cell_rhs(i) += -(1/4) * (std::pow(u_current,3) + u_current*u_current*u_old + u_current*u_old*u_old + std::pow(u_old,3)-2*u_current - 2*u_old) *
-    //                       fe_values.shape_value(i, q_index) * fe_values.JxW(q_index);
-    //       // forcing term
-    //       cell_rhs(i) += rhs_value *  fe_values.shape_value(i, q_index)* fe_values.JxW(q_index);
-    //     }
-    //   }
+          // nonlinear part
+          cell_rhs(i) += -(1/4) * (std::pow(u_current,3) + u_current*u_current*u_old + u_current*u_old*u_old + std::pow(u_old,3)-2*u_current - 2*u_old) *
+                          fe_values.shape_value(i, q_index) * fe_values.JxW(q_index);
+          // forcing term
+          cell_rhs(i) += rhs_value *  fe_values.shape_value(i, q_index)* fe_values.JxW(q_index);
+        }
+      }
 
-    //   cell->get_dof_indices(local_dof_indices);
+      cell->get_dof_indices(local_dof_indices);
 
-    //   constraints.distribute_local_to_global(cell_matrix,cell_rhs,local_dof_indices,system_matrix,system_rhs);
-    // }
+      constraints.distribute_local_to_global(cell_matrix,cell_rhs,local_dof_indices,system_matrix,system_rhs);
+    }
+    last_residual_norm = system_rhs.l2_norm();
   }
 
 
@@ -424,19 +355,31 @@ namespace Step26
   template <int dim>
   void HeatEquation<dim>::solve_newtons_method()
   {
-    SolverControl            solver_control(1000, 1e-8 * system_rhs.l2_norm());
-    SolverCG<Vector<double>> cg(solver_control);
+    for(int step=0; step < 10; ++step)
+    {
+      assemble_system();
 
-    PreconditionSSOR<SparseMatrix<double>> preconditioner;
-    preconditioner.initialize(system_matrix, 1.0);
+      if(system_rhs.l2_norm()< 1e-8)
+        {
+          std::cout << "Converged, residual: "<< system_rhs.l2_norm() <<std::endl;
+          break;
+        }
+      std::cout << "Current residual norm: "<< system_rhs.l2_norm()<<std::endl;
 
-    cg.solve(system_matrix, newton_update, system_rhs, preconditioner);
+      SolverControl            solver_control(1000, 1e-8 * system_rhs.l2_norm());
+      SolverCG<Vector<double>> cg(solver_control);
 
-    constraints.distribute(newton_update);
-    current_solution.add(1, newton_update);
+      PreconditionSSOR<SparseMatrix<double>> preconditioner;
+      preconditioner.initialize(system_matrix, 1.0);
 
-    std::cout << "     " << solver_control.last_step() << " CG iterations during Newton iteration"
-              << std::endl;
+      cg.solve(system_matrix, newton_update, system_rhs, preconditioner);
+
+      constraints.distribute(newton_update);
+      current_solution.add(1, newton_update);
+
+      std::cout << "     " << solver_control.last_step() << " CG iterations during Newton iteration"
+                << std::endl;
+    }
   }
 
 
@@ -535,16 +478,10 @@ namespace Step26
 
     double last_residual_norm = std::numeric_limits<double>::max();
 
-    // Vector<double> tmp;
-    // Vector<double> forcing_terms;
-
   start_time_iteration:
 
     time            = 0.0;
     timestep_number = 0;
-
-    // tmp.reinit(solution.size());
-    // forcing_terms.reinit(solution.size());
 
     //initial condition: sin(pi*x)
     VectorTools::interpolate(dof_handler,
@@ -564,7 +501,8 @@ namespace Step26
 
         assemble_system();
         
-        solve_time_step();
+        //solve_time_step();
+        solve_newtons_method();
         process_solution();
 
         output_results();
