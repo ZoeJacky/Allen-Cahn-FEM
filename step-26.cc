@@ -206,7 +206,7 @@ namespace Step26
   HeatEquation<dim>::HeatEquation()
     : fe(1)
     , dof_handler(triangulation)
-    , time_step(1. / 100)
+    , time_step(1. / 500)
     , epsilon(1)
   {}
 
@@ -355,38 +355,16 @@ namespace Step26
   template <int dim>
   void HeatEquation<dim>::solve_newtons_method()
   {
-    // for(int step=0; step < 10; ++step)
-    // {
-    //   assemble_system();
-
-    //   if(system_rhs.l2_norm()< 1e-15)
-    //     {
-    //       std::cout << "Converged, residual: "<< system_rhs.l2_norm() << " with " << step << " Newton Iterations" <<std::endl;
-    //       solution = current_solution;
-    //       break;
-    //     }
-    //   std::cout << "Current residual norm: "<< system_rhs.l2_norm()<<std::endl;
-
-    //   SolverControl            solver_control(1000, 1e-8 * system_rhs.l2_norm());
-    //   SolverCG<Vector<double>> cg(solver_control);
-
-    //   PreconditionSSOR<SparseMatrix<double>> preconditioner;
-    //   preconditioner.initialize(system_matrix, 1.0);
-
-    //   cg.solve(system_matrix, newton_update, system_rhs, preconditioner);
-
-    //   constraints.distribute(newton_update);
-    //   current_solution.add(1, newton_update);
-
-    //   // std::cout << "     " << solver_control.last_step() << " CG iterations during Newton iteration"
-    //   //           << std::endl;
-    // }
-    // solution = current_solution;
-
-    int counter = 0;
-    do{
-      counter++;
+    for(int step=0; step < 10; ++step)
+    {
       assemble_system();
+
+      if(system_rhs.l2_norm()< 1e-8)
+        {
+          std::cout << "Converged, residual: "<< system_rhs.l2_norm() <<std::endl;
+          old_solution = solution = current_solution;
+          break;
+        }
       std::cout << "Current residual norm: "<< system_rhs.l2_norm()<<std::endl;
 
       SolverControl            solver_control(1000, 1e-8 * system_rhs.l2_norm());
@@ -400,14 +378,9 @@ namespace Step26
       constraints.distribute(newton_update);
       current_solution.add(1, newton_update);
 
-      // std::cout << "     " << solver_control.last_step() << " CG iterations during Newton iteration"
-      //           << std::endl;
-
-    }while (system_rhs.l2_norm() > 1e-10 && counter < 50);
-    
-    std::cout << "Converged, residual: "<< system_rhs.l2_norm() << " with " << counter << " Newton Iterations" <<std::endl;
-    solution = current_solution;
-    
+      std::cout << "     " << solver_control.last_step() << " CG iterations during Newton iteration"
+                << std::endl;
+    }
   }
 
 
@@ -434,13 +407,9 @@ namespace Step26
   void HeatEquation<dim>::process_solution()
   {
     Vector<float> difference_per_cell(triangulation.n_active_cells());
-
-    Solution<dim> solution_exact;
-solution_exact.set_time(time);
-    
     VectorTools::integrate_difference(dof_handler,
                                       solution,
-                                      solution_exact,
+                                      Solution<dim>(),
                                       difference_per_cell,
                                       QGauss<dim>(fe.degree + 1),
                                       VectorTools::L2_norm);
@@ -451,7 +420,7 @@ solution_exact.set_time(time);
  
     VectorTools::integrate_difference(dof_handler,
                                       solution,
-                                      solution_exact,
+                                      Solution<dim>(),
                                       difference_per_cell,
                                       QGauss<dim>(fe.degree + 1),
                                       VectorTools::H1_seminorm);
@@ -497,7 +466,7 @@ solution_exact.set_time(time);
   template <int dim>
   void HeatEquation<dim>::run()
   {
-    const unsigned int initial_global_refinement       = 6;
+    const unsigned int initial_global_refinement       = 5;
     const std::string initial_condition = "sin(" + std::to_string(M_PI) + "*x)";
 
     GridGenerator::hyper_cube(triangulation, -1, 1, true);
@@ -530,7 +499,7 @@ solution_exact.set_time(time);
         std::cout << "Time step " << timestep_number << " at t=" << time
                   << std::endl;
 
-        // assemble_system();
+        assemble_system();
         
         //solve_time_step();
         solve_newtons_method();
@@ -538,7 +507,7 @@ solution_exact.set_time(time);
 
         output_results();
 
-        old_solution = solution;
+        // old_solution = solution;
       }
     convergence_table.set_precision("L2", 3);
     convergence_table.set_precision("H1", 3);
