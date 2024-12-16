@@ -392,7 +392,8 @@ namespace Step26
 
     data_out.set_flags(DataOutBase::VtkFlags(time, timestep_number));
 
-    const std::string filename =
+    const std::string output_directory = "./build/";
+    const std::string filename = output_directory +
       "solution-" + Utilities::int_to_string(timestep_number, 3) + ".vtk";
     std::ofstream output(filename);
     data_out.write_vtk(output);
@@ -413,16 +414,13 @@ namespace Step26
 
     unsigned int pre_refinement_step = 0;
 
-    // Vector<double> tmp;
-    // Vector<double> forcing_terms;
-
   start_time_iteration:
 
     time            = 0.0;
     timestep_number = 0;
 
-    // tmp.reinit(solution.size());
-    // forcing_terms.reinit(solution.size());
+    std::cout << "time_step " << time_step << " with mesh_refinement=" << initial_global_refinement
+                  << std::endl;
 
     //initial condition: sin(pi*x)
     VectorTools::interpolate(dof_handler,
