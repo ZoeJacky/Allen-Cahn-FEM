@@ -340,9 +340,12 @@ namespace Step26
   void HeatEquation<dim>::process_solution()
   {
     Vector<float> difference_per_cell(triangulation.n_active_cells());
+    Solution<dim> solution_exact;
+    solution_exact.set_time(time);
     VectorTools::integrate_difference(dof_handler,
                                       solution,
-                                      Solution<dim>(),
+                                      // Solution<dim>(),
+                                      solution_exact,
                                       difference_per_cell,
                                       QGauss<dim>(fe.degree + 1),
                                       VectorTools::L2_norm);
@@ -353,7 +356,8 @@ namespace Step26
  
     VectorTools::integrate_difference(dof_handler,
                                       solution,
-                                      Solution<dim>(),
+                                      // Solution<dim>(),
+                                      solution_exact,
                                       difference_per_cell,
                                       QGauss<dim>(fe.degree + 1),
                                       VectorTools::H1_seminorm);
