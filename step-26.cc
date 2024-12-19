@@ -359,10 +359,10 @@ namespace Step26
     {
       assemble_system();
 
-      if(system_rhs.l2_norm()< 1e-8)
+      if(system_rhs.l2_norm()< 1e-12)
         {
           std::cout << "Converged, residual: "<< system_rhs.l2_norm() <<std::endl;
-          old_solution = solution = current_solution;
+          solution = current_solution;
           break;
         }
       std::cout << "Current residual norm: "<< system_rhs.l2_norm()<<std::endl;
@@ -381,6 +381,7 @@ namespace Step26
       std::cout << "     " << solver_control.last_step() << " CG iterations during Newton iteration"
                 << std::endl;
     }
+    solution = current_solution;
   }
 
 
@@ -407,9 +408,12 @@ namespace Step26
   void HeatEquation<dim>::process_solution()
   {
     Vector<float> difference_per_cell(triangulation.n_active_cells());
+    Solution<dim> solution_exact;
+    solution_exact.set_time(time);
     VectorTools::integrate_difference(dof_handler,
                                       solution,
-                                      Solution<dim>(),
+                                      // Solution<dim>(),
+                                      solution_exact,
                                       difference_per_cell,
                                       QGauss<dim>(fe.degree + 1),
                                       VectorTools::L2_norm);
@@ -420,7 +424,8 @@ namespace Step26
  
     VectorTools::integrate_difference(dof_handler,
                                       solution,
-                                      Solution<dim>(),
+                                      // Solution<dim>(),
+                                      solution_exact,
                                       difference_per_cell,
                                       QGauss<dim>(fe.degree + 1),
                                       VectorTools::H1_seminorm);
@@ -507,7 +512,7 @@ namespace Step26
 
         output_results();
 
-        // old_solution = solution;
+        old_solution = solution;
       }
     convergence_table.set_precision("L2", 3);
     convergence_table.set_precision("H1", 3);
