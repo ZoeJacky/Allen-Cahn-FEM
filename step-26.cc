@@ -281,7 +281,7 @@ namespace Step26
     double last_residual_norm = std::numeric_limits<double>::max();
 
     RightHandSide<dim> rhs_function;
-    rhs_function.set_time(time);
+    rhs_function.set_time(time - time_step / 2.);
 
     for (const auto &cell : dof_handler.active_cell_iterators())
     {
@@ -314,24 +314,24 @@ namespace Step26
                                   fe_values.JxW(q_index);
 
             
-            cell_matrix(i, j) += (epsilon / 2)*fe_values.shape_grad(i, q_index) *
+            cell_matrix(i, j) += (epsilon / 2.)*fe_values.shape_grad(i, q_index) *
                                   fe_values.shape_grad(j, q_index) *
                                   fe_values.JxW(q_index);
 
-            // cell_matrix(i, j) += (1/4)*(3*u_current*u_current+2*u_current*u_old+u_old*u_old-2) *
-            //                       fe_values.shape_value(i, q_index) *
-            //                       fe_values.shape_value(j, q_index) *
-            //                       fe_values.JxW(q_index);
+            cell_matrix(i, j) += (1./4.)*(3*u_current*u_current+2*u_current*u_old+u_old*u_old-2) *
+                                  fe_values.shape_value(i, q_index) *
+                                  fe_values.shape_value(j, q_index) *
+                                  fe_values.JxW(q_index);
 
             // cell_matrix(i, j) += -(1/2)*fe_values.shape_value(i, q_index) *
             //                       fe_values.shape_value(j, q_index) *
             //                       fe_values.JxW(q_index);
 
             // f_h^n = \frac{u^n + u^{n-1}}{2}^3
-            cell_matrix(i, j) += (1/8)*(3*u_current*u_current+6*u_current*u_old+3*u_old*u_old-4) *
-                                  fe_values.shape_value(i, q_index) *
-                                  fe_values.shape_value(j, q_index) *
-                                  fe_values.JxW(q_index);
+            // cell_matrix(i, j) += (1/8)*(3*u_current*u_current+6*u_current*u_old+3*u_old*u_old-4) *
+            //                       fe_values.shape_value(i, q_index) *
+            //                       fe_values.shape_value(j, q_index) *
+            //                       fe_values.JxW(q_index);
 
           }
 
@@ -340,19 +340,19 @@ namespace Step26
           cell_rhs(i) += (1.0 / time_step) * (u_old - u_current) *
                           fe_values.shape_value(i, q_index) * fe_values.JxW(q_index);
           // -(epsilon / 2)(\nabla(u^n + u^{n-1}), \nabla \varphi_i)
-          cell_rhs(i) += -(epsilon / 2) * (gradient_u_current + gradient_u_old) *
+          cell_rhs(i) += -(epsilon / 2.) * (gradient_u_current + gradient_u_old) *
                         fe_values.shape_grad(i, q_index) * 
                         fe_values.JxW(q_index);
 
           // nonlinear part
-          // cell_rhs(i) += -(1/4) * (std::pow(u_current,3) + u_current*u_current*u_old + u_current*u_old*u_old + std::pow(u_old,3)-2*u_current - 2*u_old) *
-          //                 fe_values.shape_value(i, q_index) * fe_values.JxW(q_index);
+          cell_rhs(i) += -(1./4.) * (std::pow(u_current,3) + u_current*u_current*u_old + u_current*u_old*u_old + std::pow(u_old,3)-2*u_current - 2*u_old) *
+                          fe_values.shape_value(i, q_index) * fe_values.JxW(q_index);
 
           // cell_rhs(i) += (1/2)*(u_current + u_old)*fe_values.shape_value(i, q_index) * fe_values.JxW(q_index);
           
           // ((u_current+u_old)/2 - std:pow((u_current+u_old)/2,3),\varphi_i)
-          cell_rhs(i) += ((u_current+u_old)/2 - std::pow((u_current+u_old)/2,3)) * 
-                         fe_values.shape_value(i, q_index) * fe_values.JxW(q_index);
+          // cell_rhs(i) += ((u_current+u_old)/2 - std::pow((u_current+u_old)/2,3)) * 
+          //                fe_values.shape_value(i, q_index) * fe_values.JxW(q_index);
 
           // forcing term
           cell_rhs(i) += rhs_value *  fe_values.shape_value(i, q_index)* fe_values.JxW(q_index);
