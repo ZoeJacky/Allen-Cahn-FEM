@@ -366,6 +366,8 @@ namespace Step26
       VectorTools::compute_global_error(triangulation,
                                         difference_per_cell,
                                         VectorTools::H1_seminorm);
+
+    double energy = compute_energy();
  
     const unsigned int n_active_cells = triangulation.n_active_cells();
     const unsigned int n_dofs         = dof_handler.n_dofs();
@@ -378,6 +380,7 @@ namespace Step26
     convergence_table.add_value("dofs", n_dofs);
     convergence_table.add_value("L2", L2_error);
     convergence_table.add_value("H1", H1_error);
+    convergence_table.add_value("energy", energy);
   }
 
 
@@ -495,8 +498,6 @@ namespace Step26
         process_solution();
 
         output_results();
-
-        std::cout << "energy: " << compute_energy() << std::endl; 
 
         old_solution = solution;
       }
