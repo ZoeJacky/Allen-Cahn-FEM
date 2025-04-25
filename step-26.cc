@@ -71,6 +71,7 @@ namespace Step26
     void solve_time_step();
     void process_solution();
     void output_results() const;
+    double compute_energy();
     
     
 
@@ -199,7 +200,7 @@ namespace Step26
  
   template <int dim>
   HeatEquation<dim>::HeatEquation()
-    : fe(1)
+    : fe(2)
     , dof_handler(triangulation)
     , time_step(1. / 500)
   {}
@@ -400,6 +401,57 @@ namespace Step26
   }
 
 
+
+  template <int dim>
+  double HeatEquation<dim>::compute_energy()
+  {
+    // system_matrix = 0;
+    // system_rhs = 0;
+    // Vector<double> tmp;
+    // Vector<double> forcing_terms;
+    // tmp.reinit(solution.size());
+    // forcing_terms.reinit(solution.size());
+    double total_energy = 0;
+    double cell_energy = 0;
+    QGauss<dim> quadrature_formula(fe.degree + 1);
+
+    FEValues<dim> fe_values(fe,
+                            quadrature_formula,
+                            update_values | update_gradients | update_quadrature_points | update_JxW_values);
+
+    const unsigned int dofs_per_cell = fe.n_dofs_per_cell();
+    const unsigned int n_q_points    = quadrature_formula.size();
+    std::vector<double> solution_values(n_q_points);
+    std::vector< Tensor< 1, dim, double > > solution_gradients(n_q_points);
+    
+
+    // RightHandSide<dim> rhs_function;
+    // rhs_function.set_time(time);
+
+    for (const auto &cell : dof_handler.active_cell_iterators())
+    {
+        fe_values.reinit(cell);
+        
+        std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
+        fe_values.get_function_values(solution,solution_values);
+        fe_values.get_function_gradients(solution,solution_gradients);
+
+        for(const unsigned int q_index : fe_values.quadrature_point_indices()){
+
+          // const double u_curr = solution_values[q_index]; 
+          const double u_curr = 0.5*solution_gradients[q_index]*solution_gradients[q_index] + 
+                                0.25*(solution_values[q_index]*solution_values[q_index]-1)*(solution_values[q_index]*solution_values[q_index]-1);
+          cell_energy += u_curr * fe_values.JxW(q_index);
+
+        }
+
+    total_energy += cell_energy;
+    cell_energy=0;
+    }
+    return total_energy;
+  }
+
+
           
   template <int dim>
   void HeatEquation<dim>::run()
@@ -444,6 +496,8 @@ namespace Step26
 
         output_results();
 
+        std::cout << "energy: " << compute_energy() << std::endl; 
+
         old_solution = solution;
       }
     convergence_table.set_precision("L2", 3);
@@ -463,6 +517,56 @@ namespace Step26
     std::cout << std::endl;
     convergence_table.write_text(std::cout);
   }
+
+
+
+
+  // template <int dim>
+  // void HeatEquation<dim>::compute_energy()
+  // {
+  //   // system_matrix = 0;
+  //   // system_rhs = 0;
+  //   // Vector<double> tmp;
+  //   // Vector<double> forcing_terms;
+  //   // tmp.reinit(solution.size());
+  //   // forcing_terms.reinit(solution.size());
+  //   double total_energy = 0;
+  //   double cell_energy = 0;
+  //   QGauss<dim> quadrature_formula(fe.degree + 1);
+
+  //   FEValues<dim> fe_values(fe,
+  //                           quadrature_formula,
+  //                           update_values | update_gradients | update_quadrature_points | update_JxW_values);
+
+  //   const unsigned int dofs_per_cell = fe.n_dofs_per_cell();
+  //   const unsigned int n_q_points    = quadrature_formula.size();
+  //   std::vector<double> solution_values(n_q_points);
+  //   std::vector< Tensor< 1, dim, double > > solution_gradients(n_q_points);
+    
+
+  //   // RightHandSide<dim> rhs_function;
+  //   // rhs_function.set_time(time);
+
+  //   for (const auto &cell : dof_handler.active_cell_iterators())
+  //   {
+  //       fe_values.reinit(cell);
+        
+  //       std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
+  //       fe_values.get_function_values(solution,solution_values);
+  //       fe_values.get_function_gradients(solution,solution_gradients);
+
+  //       for(const unsigned int q_index : fe_values.quadrature_point_indices()){
+
+  //         const double u_curr = solution_values[q_index]; 
+  //         const double u_curr = 0.5*std::pow(solution_gradients[q_index],2)+0.25*std::pow(std:pow(solution_values[q_index],2)-1,2)
+  //         cell_energy += u_curr * fe_values.JxW(q_index);
+
+  //       }
+
+  //   total_energy += cell_energy;
+  //   cell_energy=0;
+  //   }
+  // }
 }
 
 
