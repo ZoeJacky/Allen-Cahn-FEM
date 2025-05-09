@@ -72,7 +72,7 @@ namespace Step26
     void solve_time_step();
     void process_solution();
     void output_results() const;
-    
+    double compute_energy();
     
 
     Triangulation<dim> triangulation;
@@ -450,6 +450,8 @@ namespace Step26
       VectorTools::compute_global_error(triangulation,
                                         difference_per_cell,
                                         VectorTools::H1_seminorm);
+
+    double energy = compute_energy();
  
     const unsigned int n_active_cells = triangulation.n_active_cells();
     const unsigned int n_dofs         = dof_handler.n_dofs();
@@ -462,6 +464,7 @@ namespace Step26
     convergence_table.add_value("dofs", n_dofs);
     convergence_table.add_value("L2", L2_error);
     convergence_table.add_value("H1", H1_error);
+    convergence_table.add_value("energy", energy);
   }
 
 
@@ -481,6 +484,44 @@ namespace Step26
       "solution-" + Utilities::int_to_string(timestep_number, 3) + ".vtk";
     std::ofstream output(filename);
     data_out.write_vtk(output);
+  }
+
+
+  template <int dim>
+  double HeatEquation<dim>::compute_energy()
+  {
+    double total_energy = 0;
+    double cell_energy = 0;
+    QGauss<dim> quadrature_formula(fe.degree + 1);
+
+    FEValues<dim> fe_values(fe,
+                            quadrature_formula,
+                            update_values | update_gradients | update_quadrature_points | update_JxW_values);
+
+    const unsigned int dofs_per_cell = fe.n_dofs_per_cell();
+    const unsigned int n_q_points    = quadrature_formula.size();
+    std::vector<double> solution_values(n_q_points);
+    std::vector< Tensor< 1, dim, double > > solution_gradients(n_q_points);
+
+    for (const auto &cell : dof_handler.active_cell_iterators())
+    {
+        fe_values.reinit(cell);
+        
+        std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
+        fe_values.get_function_values(solution,solution_values);
+        fe_values.get_function_gradients(solution,solution_gradients);
+
+        for(const unsigned int q_index : fe_values.quadrature_point_indices()){
+          const double u_curr = (epsilon / 2.)*solution_gradients[q_index]*solution_gradients[q_index] + 
+                                0.25*(solution_values[q_index]*solution_values[q_index]-1)*(solution_values[q_index]*solution_values[q_index]-1);
+          cell_energy += u_curr * fe_values.JxW(q_index);
+
+        }
+
+    total_energy += cell_energy;
+    cell_energy=0;
+    }
+    return total_energy;
   }
 
 
