@@ -432,7 +432,7 @@ namespace Step26
         fe_values.get_function_gradients(solution,solution_gradients);
 
         for(const unsigned int q_index : fe_values.quadrature_point_indices()){
-          const double u_curr = 0.5*solution_gradients[q_index]*solution_gradients[q_index] + 
+          const double u_curr = (epsilon / 2.)*solution_gradients[q_index]*solution_gradients[q_index] + 
                                 0.25*(solution_values[q_index]*solution_values[q_index]-1)*(solution_values[q_index]*solution_values[q_index]-1);
           cell_energy += u_curr * fe_values.JxW(q_index);
 
