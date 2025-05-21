@@ -176,8 +176,8 @@ namespace Step26
     Assert(dim == 2, ExcNotImplemented());
     const double time = this->get_time();
     const double pi=M_PI;
-    return std::pow(sin(pi*p[0])*cos(time),3)  -sin(pi*p[0])*sin(time)+(pi*pi  - 1)*sin(pi*p[0])*cos(time);
-    // return 0;
+    // return std::p?ow(sin(pi*p[0])*cos(time),3)  -sin(pi*p[0])*sin(time)+(pi*pi  - 1)*sin(pi*p[0])*cos(time);
+    return 0;
   }
 
 
@@ -201,10 +201,41 @@ namespace Step26
     return 0;
   }
 
+
+  template <int dim>
+  class InitialCondition : public Function<dim>
+  {
+  public:
+    InitialCondition()
+      : Function<dim>()
+      , r(0.5)
+    {}
+    virtual double value(const Point<dim> & p,
+                         const unsigned int component = 0) const override;
+
+  private:
+    const double r; // Sets amplitude range
+  };
+
+  template <int dim>
+  double InitialCondition<dim>::value(const Point<dim> & p,
+                                    const unsigned int component) const
+  {
+    // Deterministic "random" value based on position, using a hash-like approach
+    double x = p[0];
+    double y = p[1];
+    double seed = std::sin(17 * x + 43 * y + 0.1) * 43758.5453;
+    double rand_val = seed - std::floor(seed);  // Get fractional part in [0,1)
+    
+    // Scale to range [-sqrt(r), sqrt(r)]
+    return 2.0 * std::sqrt(r) * rand_val - std::sqrt(r);
+    // return std::sin(M_PI*x);
+  }
+
  
   template <int dim>
   HeatEquation<dim>::HeatEquation()
-    : fe(1)
+    : fe(2)
     , dof_handler(triangulation)
     , time_step(1. / 500)
     , epsilon(1)
@@ -530,7 +561,7 @@ namespace Step26
   void HeatEquation<dim>::run()
   {
     const unsigned int initial_global_refinement       = 5;
-    const std::string initial_condition = "sin(" + std::to_string(M_PI) + "*x)";
+    // const std::string initial_condition = "sin(" + std::to_string(M_PI) + "*x)";
 
     GridGenerator::hyper_cube(triangulation, -1, 1, true);
     triangulation.refine_global(initial_global_refinement);
@@ -547,8 +578,12 @@ namespace Step26
     timestep_number = 0;
 
     //initial condition: sin(pi*x)
+    // VectorTools::interpolate(dof_handler,
+    //                           FunctionParser<dim>(initial_condition),
+    //                           old_solution);
+    InitialCondition<dim> random_initial_condition;
     VectorTools::interpolate(dof_handler,
-                              FunctionParser<dim>(initial_condition),
+                              random_initial_condition,
                               old_solution);
     solution = old_solution;
 
