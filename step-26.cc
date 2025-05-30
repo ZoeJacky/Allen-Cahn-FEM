@@ -238,7 +238,7 @@ namespace Step26
     : fe(2)
     , dof_handler(triangulation)
     , time_step(1. / 500)
-    , epsilon(1)
+    , epsilon(1.)
   {}
 
 
