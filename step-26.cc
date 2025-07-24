@@ -609,9 +609,11 @@ namespace Step26
       }
     convergence_table.set_precision("L2", 3);
     convergence_table.set_precision("H1", 3);
+    convergence_table.set_precision("energy", 3);
  
     convergence_table.set_scientific("L2", true);
     convergence_table.set_scientific("H1", true);
+    convergence_table.set_scientific("energy", true);
 
     convergence_table.set_tex_caption("time step", "\\# time step");
     convergence_table.set_tex_caption("cells", "\\# cells");
