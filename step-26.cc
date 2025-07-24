@@ -176,7 +176,7 @@ namespace Step26
     Assert(dim == 2, ExcNotImplemented());
     const double time = this->get_time();
     const double pi=M_PI;
-    // return std::p?ow(sin(pi*p[0])*cos(time),3)  -sin(pi*p[0])*sin(time)+(pi*pi  - 1)*sin(pi*p[0])*cos(time);
+    // return std::pow(sin(pi*p[0])*cos(time),3)  -sin(pi*p[0])*sin(time)+(pi*pi  - 1)*sin(pi*p[0])*cos(time);
     return 0;
   }
 
