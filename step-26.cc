@@ -545,6 +545,9 @@ namespace Step26
  
     std::cout << std::endl;
     convergence_table.write_text(std::cout);
+    std::ofstream output_file("convergence_results.txt");
+    convergence_table.write_text(output_file);
+    output_file.close();
   }
 }
 
